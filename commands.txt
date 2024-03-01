@@ -1,0 +1,217 @@
+sudo apt update 
+sudo apt install ansible
+ansible --version 
+
+
+ssh privateip    ---from source try provate ip of target 
+ubuntu@ip-172-31-41-97:~$ ssh-keygen
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/ubuntu/.ssh/id_rsa):
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /home/ubuntu/.ssh/id_rsa
+Your public key has been saved in /home/ubuntu/.ssh/id_rsa.pub
+The key fingerprint is:
+SHA256:OkGKYAxsHaxd7wGjpew2iIV7reVCLhSdNzy7awCxwLM ubuntu@ip-172-31-41-97
+The key's randomart image is:
+ubuntu@ip-172-31-41-97:~/.ssh$ ls
+authorized_keys  id_rsa  id_rsa.pub  known_hosts
+ubuntu@ip-172-31-41-97:~/.ssh$ cat id_rsa.pub
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCjFv6a8el2FNfGQHZkCa4f8EgNudU6Xw2XX6nTuBkBJ4Ibr/RK9bMrAff13rAnsGMlAHXWBRu8Vl56FLL7LMPYyqheUICVdGfQMFJcMCluN1y9rxOuNa20GrOVbUR+AMi38wMDj9+L6hxicQ1uRJu9kd2Sq1A1yRRuLs4pBbUiC0LhgdTo44gCx5W4wrrWna8e+28zUnQP+1dIwhV6yKCWSanmJSq+jMUbWzv80tCqtojFs5TvD/9hDlCmEqzpXqlavusT19iaLlQfManMbBJ7pyiANfHhMAlYnfg3Rj4ACEIvistyHpu0qDvJ6VDXOH4jHbw2jJv5pKdR3Ja+4jYiTEZ2us98hezvmPXu2Hn4BBryfcAd9reX9/oufsih2hRgJqBFJig1r+1H2HtOGXYidkxKxkvbteT8w9oWGa9EP9qZvczgClyLLshGQ76KMo8zSMMhAfyp63pfLSzHdrS3IJ4Wh8WWQX0d93ZkKpuTeQ8AbZ+3p9SZPM8zN8hi3Bk= ubuntu@ip-172-31-41-97
+ubuntu@ip-172-31-41-97:~/.ssh$
+
+
+
+Prequiste of Ansible -Password less authontication 
+Authontication without pasword
+
+
+at source
+ubuntu@ip-172-31-41-97:~/.ssh$ cat id_rsa.pub
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCjFv6a8el2FNfGQHZkCa4f8EgNudU6Xw2XX6nTuBkBJ4Ibr/RK9bMrAff13rAnsGMlAHXWBRu8Vl56FLL7LMPYyqheUICVdGfQMFJcMCluN1y9rxOuNa20GrOVbUR+AMi38wMDj9+L6hxicQ1uRJu9kd2Sq1A1yRRuLs4pBbUiC0LhgdTo44gCx5W4wrrWna8e+28zUnQP+1dIwhV6yKCWSanmJSq+jMUbWzv80tCqtojFs5TvD/9hDlCmEqzpXqlavusT19iaLlQfManMbBJ7pyiANfHhMAlYnfg3Rj4ACEIvistyHpu0qDvJ6VDXOH4jHbw2jJv5pKdR3Ja+4jYiTEZ2us98hezvmPXu2Hn4BBryfcAd9reX9/oufsih2hRgJqBFJig1r+1H2HtOGXYidkxKxkvbteT8w9oWGa9EP9qZvczgClyLLshGQ76KMo8zSMMhAfyp63pfLSzHdrS3IJ4Wh8WWQX0d93ZkKpuTeQ8AbZ+3p9SZPM8zN8hi3Bk= ubuntu@ip-172-31-41-97
+
+
+at target 
+ubuntu@ip-172-31-41-229:~/.ssh$ ls
+authorized_keys  id_rsa  id_rsa.pub
+ubuntu@ip-172-31-41-229:~/.ssh$ vi authorized_keys
+ubuntu@ip-172-31-41-229:~/.ssh$ ls -ltrh
+
+Pasted above public key in target authrozed keys now if you do ssh to provate ip of target from source 
+you will able to connect target from source
+
+
+
+Ansible adhoc commands --from source --creating file on servers added in inventory 
+
+ubuntu@ip-172-31-41-97:~/.ansible$ pwd
+/home/ubuntu/.ansible
+ubuntu@ip-172-31-41-97:~/.ansible$
+
+ubuntu@ip-172-31-41-97:~/.ansible$ pwd
+/home/ubuntu/.ansible
+ubuntu@ip-172-31-41-97:~/.ansible$ vim inventory
+ubuntu@ip-172-31-41-97:~/.ansible$ ls -ltrh
+total 8.0K
+drwx------ 2 ubuntu ubuntu 4.0K Mar  1 08:21 tmp
+-rw-rw-r-- 1 ubuntu ubuntu   14 Mar  1 08:22 inventory
+ubuntu@ip-172-31-41-97:~/.ansible$ cat inventory
+172-31-41-229
+ubuntu@ip-172-31-41-97:~/.ansible$ ansible -i inventory all -m "shell" -a "touch devops"
+172-31-41-229 | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: ssh: Could not resolve hostname 172-31-41-229: Temporary failure in name resolution",
+    "unreachable": true
+}
+ubuntu@ip-172-31-41-97:~/.ansible$ vi inventory
+ubuntu@ip-172-31-41-97:~/.ansible$ ansible -i inventory all -m "shell" -a "touch devops"
+[WARNING]: Consider using the file module with state=touch rather than running 'touch'.  If you need to use command because file is insufficient you can add 'warn:
+false' to this command task or set 'command_warnings=False' in ansible.cfg to get rid of this message.
+172.31.41.229 | CHANGED | rc=0 >>
+
+ubuntu@ip-172-31-41-97:~/.ansible$
+
+
+Ansible adhoc command is for small task 
+Ansible playbook is for long task 
+-m is module 
+-a is the command 
+
+ubuntu@ip-172-31-41-97:~/.ansible$ ansible -i inventory all -m "shell" -a "df"
+172.31.41.229 | CHANGED | rc=0 >>
+Filesystem     1K-blocks    Used Available Use% Mounted on
+/dev/root        7941576 1637236   6287956  21% /
+tmpfs             486248       0    486248   0% /dev/shm
+tmpfs             194500     864    193636   1% /run
+tmpfs               5120       0      5120   0% /run/lock
+/dev/xvda15       106832    6186    100646   6% /boot/efi
+tmpfs              97248       4     97244   1% /run/user/1000
+
+
+Now if the task is to work on particular list of servrs then u have to make groups in inventory like 
+0r
+How to u group servers in inventory 
+[dbservers]
+172.23.24.25
+172.23.24.23
+172.23.24.26
+
+[webservers]
+172.23.22.25
+172.23.22.23
+172.23.22.26
+ubuntu@ip-172-31-41-97:~/.ansible$ ansible -i inventory webservers -m "shell" -a "df"
+
+
+Now write playbook to install ngnix and start it
+
+vi first_playbook.yml
+ubuntu@ip-172-31-41-97:~/.ansible$ cat first_playbook.yml
+---
+- name : Install Nginx and start
+  hosts: all
+  become: true
+
+  tasks:
+     - name: Install nginx
+       apt:
+         name: nginx
+         state: present
+     - name: Start nginx
+       service:
+          name: nginx
+          state: started
+
+
+ansible-playbook -i inventory first_playbook.yml
+
+
+ubuntu@ip-172-31-41-97:~/.ansible$ ansible-playbook -i inventory first_playbook.yml
+
+PLAY [Install Nginx and start] *****************************************************************************************************************************************
+
+TASK [Gathering Facts] *************************************************************************************************************************************************
+ok: [172.31.41.229]
+
+TASK [Install nginx] ***************************************************************************************************************************************************
+ok: [172.31.41.229]
+
+TASK [Start nginx] *****************************************************************************************************************************************************
+ok: [172.31.41.229]
+
+PLAY RECAP *************************************************************************************************************************************************************
+172.31.41.229              : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+
+
+
+check at target 
+
+ubuntu@ip-172-31-41-229:~$ systemctl status nginx
+● nginx.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/lib/systemd/system/nginx.service; enabled; vendor preset: enabled)
+     Active: active (running) since Fri 2024-03-01 10:36:51 UTC; 3min 8s ago
+       Docs: man:nginx(8)
+    Process: 3442 ExecStartPre=/usr/sbin/nginx -t -q -g daemon on; master_process on; (code=exited, status=0/SUCCESS)
+    Process: 3443 ExecStart=/usr/sbin/nginx -g daemon on; master_process on; (code=exited, status=0/SUCCESS)
+   Main PID: 3537 (nginx)
+      Tasks: 2 (limit: 1121)
+     Memory: 5.1M
+        CPU: 27ms
+     CGroup: /system.slice/nginx.service
+             ├─3537 "nginx: master process /usr/sbin/nginx -g daemon on; master_process on;"
+             └─3540 "nginx: worker process" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""
+
+
+
+
+Ansible roles --is efficient way of writing your play book 
+Eg of Kubernetesit will be complex so at that place we can roles
+
+
+mkdir second_playbook 
+ansible-galaxy role init kubernetes
+ls 
+cd kubernetes
+ls
+
+
+meta --entire playbook infrmation
+defaults--for variable storegae
+handlers--error handling 
+tasks --what need to do
+files--licenceor index.html
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

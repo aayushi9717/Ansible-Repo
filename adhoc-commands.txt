@@ -1,0 +1,64 @@
+ubuntu@ip-172-31-41-97:~/.ansible$ ansible -i inventory all -m "command" -a "uptime "
+172.31.41.229 | CHANGED | rc=0 >>
+ 14:44:30 up 18 min,  2 users,  load average: 0.00, 0.05, 0.07
+ubuntu@ip-172-31-41-97:~/.ansible$
+
+------------------------------------------------------------------------------------------------
+ ubuntu@ip-172-31-41-97:~/.ansible$ansible -i inventory all -m  copy -a "src=/home/ubuntu/.ansible/first_playbook.yml dest=/home/ubuntu""
+172.31.41.229 | CHANGED => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": true,
+    "checksum": "86dbe209806b6f92b64b7a46ef8371bd3a8e2dc7",
+    "dest": "/home/ubuntu/first_playbook.yml",
+    "gid": 1000,
+    "group": "ubuntu",
+    "md5sum": "292716e63effedca1a59a0c3c7211046",
+    "mode": "0664",
+    "owner": "ubuntu",
+    "size": 248,
+    "src": "/home/ubuntu/.ansible/tmp/ansible-tmp-1709305100.9545488-1424-208970941052534/source",
+    "state": "file",
+    "uid": 1000
+}
+ubuntu@ip-172-31-41-97:~/.ansible$
+
+----------------------------------------------------------------------------
+This ensures nginx is installed on all Debian/Ubuntu hosts.
+ubuntu@ip-172-31-41-97:~/.ansible$ ansible -i inventory all -m apt -a "name=nginx state=present"
+172.31.41.229 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "cache_update_time": 1709303841,
+    "cache_updated": false,
+    "changed": false
+}
+ubuntu@ip-172-31-41-97:~/.ansible$
+
+--------------------------------------------------------------------
+1. Gathering Information (using setup module)
+
+ubuntu@ip-172-31-41-97:~/.ansible$ ansible -i inventory all -m setup
+172.31.41.229 | SUCCESS => {
+    "ansible_facts": {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
