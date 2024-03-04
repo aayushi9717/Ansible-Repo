@@ -1,0 +1,41 @@
+ubuntu@ip-172-31-41-97:~/.ansible$ ansible-galaxy init install-role
+- Role install-role was created successfully
+ubuntu@ip-172-31-41-97:~/.ansible$ ls
+cp  first_playbook.yml  install  install-role  inventory  second-playbook.yml  tmp
+ubuntu@ip-172-31-41-97:~/.ansible$ rm -rf install
+ubuntu@ip-172-31-41-97:~/.ansible$ ls
+cp  first_playbook.yml  install-role  inventory  second-playbook.yml  tmp
+ubuntu@ip-172-31-41-97:~/.ansible$ ansible-galaxy init copy-role
+- Role copy-role was created successfully
+ubuntu@ip-172-31-41-97:~/.ansible$ ls
+copy-role  cp  first_playbook.yml  install-role  inventory  second-playbook.yml  tmp
+ubuntu@ip-172-31-41-97:~/.ansible$ cd install-role/
+ubuntu@ip-172-31-41-97:~/.ansible/install-role$ ls
+README.md  defaults  handlers  meta  tasks  tests  vars
+ubuntu@ip-172-31-41-97:~/.ansible/install-role$ cd tasks/
+ubuntu@ip-172-31-41-97:~/.ansible/install-role/tasks$ ls
+main.yml
+ubuntu@ip-172-31-41-97:~/.ansible/install-role/tasks$ vi main.yml
+ubuntu@ip-172-31-41-97:~/.ansible/install-role/tasks$ vi main.yml
+
+
+
+---
+- name: Install Apache,My SQL and PHP
+  apt:
+   name:
+     -apache2
+     -mysql-server
+     -php
+   state: present
+
+- name: Enabling HTTPD service and start it
+  service:
+    name: httpd
+    state: present
+    enabled:yes
+- name : Enable My sql and start
+  service :
+    name: mysqld
+    state: started
+    enabled:yes

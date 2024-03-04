@@ -1,3 +1,7 @@
+-m (modulename)
+-a (argument to module)
+
+
 ubuntu@ip-172-31-41-97:~/.ansible$ ansible -i inventory all -m "command" -a "uptime "
 172.31.41.229 | CHANGED | rc=0 >>
  14:44:30 up 18 min,  2 users,  load average: 0.00, 0.05, 0.07
@@ -45,17 +49,107 @@ ubuntu@ip-172-31-41-97:~/.ansible$ ansible -i inventory all -m setup
     "ansible_facts": {
 
 
+------------------------------------------------------------------
+ubuntu@ip-172-31-41-97:~/.ansible$ ansible -i inventory all -m setup -a 'filter="ansible_kernel"'
+172.31.41.229 | SUCCESS => {
+    "ansible_facts": {
+        "ansible_kernel": "6.2.0-1018-aws",
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false
+
+--------------------------------------------------------------------------------------
+
+By default, Ansible can execute an ad hoc command on five nodes at a time. 
+The number of parallel executions can be changed using the fork flag.
+	
+ansible -i inventory all -m apt -a "name=wget state=present" --become -f 10
+
+
+-----------------------------------------------------------------------------
+
+You can use the ansible-doc -l command to list all the modules. 
+To search modules related to ping, you can use:
+
+ansible-doc -l | grep -i ping
+
+
+Below command checks, if the yum package is installed or not, but not update it.
+
+---------------------------------------------------------------------------------
+To check git version command 
+
+ubuntu@ip-172-31-41-97:~/.ansible$ ansible -i inventory all -m shell -a 'git --version'
+172.31.41.229 | CHANGED | rc=0 >>
+git version 2.34.1
+
+----------------------------------------------------------------------------------------
+
+To check nginx status command 
+
+ubuntu@ip-172-31-41-97:~/.ansible$ ansible -i inventory  all -m service -a 'name=nginx state=started'
+172.31.41.229 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+
+ansible -i inventory_file all -m copy -a 'src=/local/path/to/file dest=/remote/path/to/file mode=0644'
 
 
 
 
+-b: This tells Ansible to run the command as the superuser (i.e., with sudo).
+
+
+ ansible -i inventory  all -m service -a 'name=nginx state=stopped' 
+
+
+----------------------------------------------------------------------------------------------
+
+To update APT 
+ubuntu@ip-172-31-41-97:~/.ansible$ ansible -i inventory all -m apt -a "name=zip state=present update_cache=true" -b
+172.31.41.229 | CHANGED => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "cache_update_time": 1709551464,
+
+
+------------------------------------------------------------------------------------
+To create password vault
 
 
 
+ubuntu@ip-172-31-41-97:~/.ansible$ ansible-vault create password.txt
+New Vault password:
+Confirm New Vault password:
+ubuntu@ip-172-31-41-97:~/.ansible$ ls
+copy-playbook.yml  cp         file_1.txt          insertline.yml  inventory     role-use.yml         tmp
+copy-role          file2.txt  first_playbook.yml  install-role    password.txt  second-playbook.yml
+ubuntu@ip-172-31-41-97:~/.ansible$ cat password.txt
+$ANSIBLE_VAULT;1.1;AES256
+34613134343865353534616535343939643165636134343561366364316665306461396131666130
+3033356532363432623335373963316635363938383039370a663063306262623437333763613133
+36393963356635633634333939313439396562623331663666366631383939663664653538383266
+6433383930303061370a656237373939393165643230656134653963363830663931663361356661
+39656630373366343461373730393233653463646266613762303964323231333732
+ubuntu@ip-172-31-41-97:~/.ansible$ pwd
+/home/ubuntu/.ansible
 
 
+This command will decrypt the file to a temporary file and allow you to edit the file.
+
+ubuntu@ip-172-31-41-97:~/.ansible$ ansible-vault edit password.txt
+Vault password:
+ubuntu@ip-172-31-41-97:~/.ansible$
 
 
+ubuntu@ip-172-31-41-97:~/.ansible$ ansible-vault view password.txt
+Vault password:
+password file created
+
+now new line added
+ubuntu@ip-172-31-41-97:~/.ansible$
 
 
 

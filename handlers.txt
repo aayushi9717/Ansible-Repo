@@ -1,0 +1,13 @@
+Handlers:
+
+- name: restart Apache
+
+service: name=apache2 state=restarted
+
+tasks:
+
+- name: Enable Apache rewrite module.
+
+apache2_module: name=rewrite state=present
+
+notify: restart Apache
