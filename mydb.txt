@@ -1,0 +1,214 @@
+ubuntu@ip-172-31-41-97:~/.ansible$  ansible-playbook -i inventory mydb.yml
+
+PLAY [Install & Secure Mysql 8 on Ubuntu] ******************************************************************************************************************************
+
+TASK [Gathering Facts] *************************************************************************************************************************************************
+ok: [13.232.111.174]
+
+TASK [Update apt cache] ************************************************************************************************************************************************
+changed: [13.232.111.174]
+
+TASK [Installing Mysql] ************************************************************************************************************************************************
+ok: [13.232.111.174] => (item=mysql-server)
+changed: [13.232.111.174] => (item=mysql-client)
+ok: [13.232.111.174] => (item=python3-mysqldb)
+changed: [13.232.111.174] => (item=libmysqlclient-dev)
+
+TASK [start and enable mysql service] **********************************************************************************************************************************
+ok: [13.232.111.174]
+
+TASK [Set root user password] ******************************************************************************************************************************************
+changed: [13.232.111.174]
+
+TASK [Create admin user with remote access] ****************************************************************************************************************************
+[WARNING]: The value "********" (type int) was converted to "'********'" (type string). If this does not look like what you expect, quote the entire value to ensure it
+does not change.
+changed: [13.232.111.174]
+
+TASK [creating database] ***********************************************************************************************************************************************
+changed: [13.232.111.174]
+
+TASK [Enable remote login to mysql] ************************************************************************************************************************************
+changed: [13.232.111.174]
+
+TASK [Execute MySQL secure installation] *******************************************************************************************************************************
+changed: [13.232.111.174]
+
+RUNNING HANDLER [Restart mysql] ****************************************************************************************************************************************
+changed: [13.232.111.174]
+
+PLAY RECAP *************************************************************************************************************************************************************
+13.232.111.174             : ok=10   changed=8    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+
+
+
+
+ubuntu@ip-172-31-41-97:~/.ansible$ cat mydb.yml
+---
+- name: Install & Secure Mysql 8 on Ubuntu
+  hosts: all
+  become: yes
+
+  vars_files:
+    - var.yml
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Installing Mysql
+      package:
+         name: "{{item}}"
+         state: present
+         update_cache: yes
+      loop:
+        - mysql-server
+        - mysql-client
+        - python3-mysqldb
+        - libmysqlclient-dev
+      become: yes
+
+    - name: start and enable mysql service
+      service:
+         name: mysql
+         state: started
+         enabled: yes
+
+    - name: Set root user password
+      mysql_user:
+        name: root
+        password: "{{root_password}}"
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+        host: localhost
+        login_user: root
+        login_password: ''
+        state: present
+
+    - name: Create admin user with remote access
+      mysql_user:
+        name: "{{admin_user}}"
+        password: "{{admin_password}}"
+        priv: '*.*:ALL'
+        host: '%'
+        append_privs: yes
+        login_user: root
+        login_password: "{{root_password}}"
+        state: present
+
+    - name: creating database
+      mysql_db:
+        name: "{{db_name}}"
+        state: present
+        login_user: root
+        login_password: "{{root_password}}"
+
+    - name: Enable remote login to mysql
+      lineinfile:
+        path: /etc/mysql/mysql.conf.d/mysqld.cnf
+        regex: '^bind-address\s*=\s*127.0.0.1'
+        line: 'bind-address = 0.0.0.0'
+        backup: yes
+      notify:
+        - Restart mysql
+
+    - name: Execute MySQL secure installation
+      expect:
+        command: mysql_secure_installation
+        responses:
+          'Enter password for user root:': "{{ root_password }}"
+          'Press y\|Y for Yes, any other key for No': 'Y'
+          'Please enter 0 = LOW, 1 = MEDIUM and 2 = STRONG': "{{ password_validation_policy }}"
+          'Change the password for root \? \(\(Press y\|Y for Yes, any other key for No\)': 'n'
+          'Remove anonymous users\? \(Press y\|Y for Yes, any other key for No\)': 'Y'
+          'Disallow root login remotely\? \(Press y\|Y for Yes, any other key for No\)': 'Y'
+          'Remove test database and access to it\? \(Press y\|Y for Yes, any other key for No\)': 'Y'
+          'Reload privilege tables now\? \(Press y\|Y for Yes, any other key for No\)': 'Y'
+      environment:
+        MYSQL_PWD: "{{ root_password }}"
+
+  handlers:
+    - name: Restart mysql
+      service:
+        name: mysql
+        state: restarted
+
+
+
+ubuntu@ip-172-31-41-97:~/.ansible$ cat var.yml
+---
+root_password: root
+admin_user: admin
+admin_password: 123
+db_name: MYDB
+password_validation_policy: 1
+
+
+
+
+ubuntu@ip-172-31-41-229:~$ mysql -u admin  -p
+Enter password:
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 9
+Server version: 8.0.36-0ubuntu0.22.04.1 (Ubuntu)
+
+Copyright (c) 2000, 2024, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> show tables;
+ERROR 1046 (3D000): No database selected
+mysql> use testdb;
+ERROR 1049 (42000): Unknown database 'testdb'
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| MYDB               |
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+5 rows in set (0.00 sec)
+
+mysql>
+
+
+mysql> use MYDB;
+Database changed
+mysql> show tables;
+Empty set (0.00 sec)
+
+mysql> CREATE TABLE IF NOT EXISTS test (
+    ->   message varchar(255) NOT NULL
+    ->   ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  INSERT INTO test(message) VALUES('Get ready');
+  INSERT INTO test(message) VALUES('Ansible is fun')Query OK, 0 rows affected, 1 warning (0.01 sec)
+
+mysql>   INSERT INTO test(message) VALUES('Ansible To Do List');
+Query OK, 1 row affected (0.00 sec)
+
+mysql>   INSERT INTO test(message) VALUES('Get ready');
+Query OK, 1 row affected (0.01 sec)
+
+mysql>   INSERT INTO test(message) VALUES('Ansible is fun')
+    -> ;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> slect * from test;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'slect * from test' at line 1
+mysql> select * from test;
++--------------------+
+| message            |
++--------------------+
+| Ansible To Do List |
+| Get ready          |
+| Ansible is fun     |
++--------------------+
+3 rows in set (0.00 sec)
+
