@@ -1,0 +1,46 @@
+ubuntu@ip-172-31-41-97:~/.ansible/configure_web_server$ ansible-playbook -i inventory  web.yml
+
+PLAY [this is a simple html project deploy using ansible] **************************************************************************************************************
+
+TASK [Gathering Facts] *************************************************************************************************************************************************
+ok: [13.201.37.198]
+
+TASK [Update packages and upgrade] *************************************************************************************************************************************
+ok: [13.201.37.198]
+
+TASK [install apache2 server] ******************************************************************************************************************************************
+ok: [13.201.37.198]
+
+TASK [Deploy webpage] **************************************************************************************************************************************************
+ok: [13.201.37.198]
+
+TASK [restart apache2 service] *****************************************************************************************************************************************
+changed: [13.201.37.198]
+
+PLAY RECAP *************************************************************************************************************************************************************
+13.201.37.198              : ok=5    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+
+ubuntu@ip-172-31-41-97:~/.ansible/configure_web_server$ cat web.yml
+---
+- name: this is a simple html project deploy using ansible
+  hosts: all
+  become: true
+
+  tasks:
+    - name: "Update packages and upgrade"
+      apt:
+        update_cache: true
+        upgrade: dist
+        force_apt_get: true
+    - name: install apache2 server
+      apt:
+        name : apache2
+        state: latest
+    - name: Deploy webpage
+      copy:
+        src: /home/ubuntu/.ansible/configure_web_server/index.html
+        dest: /var/www/html
+    - name: "restart apache2 service"
+      service:
+        name: apache2
+        state: restarted

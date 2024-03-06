@@ -1,0 +1,44 @@
+for this error belwo is the soultion 
+
+ Unable to acquire the dpkg frontend lock (/var/lib/dpkg/lock-frontend), are you root?\n", "stderr_lines": ["E: Could not open lock file /var/lib/dpkg/lock-frontend - 
+open (13: Permission denied)", 
+
+
+ubuntu@ip-172-31-41-97:~/.ansible/load-balancer$ ansible-playbook -i inventory lock-remove.yml
+
+PLAY [Remove apt lock file] ********************************************************************************************************************************************
+
+TASK [Gathering Facts] *************************************************************************************************************************************************
+ok: [load_balancer_ip]
+ok: [app_server_1]
+ok: [db_server]
+
+TASK [lock removal] ****************************************************************************************************************************************************
+ok: [load_balancer_ip]
+ok: [app_server_1]
+ok: [db_server]
+
+PLAY RECAP *************************************************************************************************************************************************************
+app_server_1               : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+db_server                  : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+load_balancer_ip           : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+
+ubuntu@ip-172-31-41-97:~/.ansible/load-balancer$ cat lock-remove.yml
+---
+- name: Remove apt lock file
+  hosts : all
+  become : true
+  tags : apt
+
+  tasks:
+  - name: lock removal
+    file:
+     state: absent
+     path: "/var/lib/dpkg/lock-frontend"
+
+
+
+
+___________________________________________________________________________________________________________
+
+
